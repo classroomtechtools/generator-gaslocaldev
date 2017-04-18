@@ -1,0 +1,9 @@
+{
+  "generator-node": {
+    "promptValues": {
+      "authorName": "Adam Morris",
+      "authorEmail": "amorris@mistermorris.com",
+      "authorUrl": "http://classroomtechtools.com"
+    }
+  }
+}

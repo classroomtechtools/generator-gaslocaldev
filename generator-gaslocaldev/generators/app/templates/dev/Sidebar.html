@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/pepper-grinder/jquery-ui.css">
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+  <?!= include('css'); ?>
+
+  <?/*include('development-sidebar');*/?>
+
+</head>
+
+<body>
+
+  <div id="tabs">
+    <ul>
+      <li><a href="#firstTab">First</a></li>
+      <li><a href="#secondTab">Second</a></li>
+    </ul>
+
+    <div id="firstTab">
+      <!-- FIRST TAB -->
+    </div>
+
+    <div id="secondTab">
+      <!-- SECOND TAB -->
+    </div>
+
+  </div>
+
+  <?!= include('javascript', virtual()); ?>
+
+</body>

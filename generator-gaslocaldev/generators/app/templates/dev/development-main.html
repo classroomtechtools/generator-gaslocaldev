@@ -1,0 +1,113 @@
+<!-- 
+CSS, HTML, Javascript code that only runs on local clientside
+Excluded from copying to source folder
+-->
+
+<script>
+
+(function (window) {
+
+    // set up google.* 
+    // first need to make object that saves success and failure callbacks
+
+    var googleRunScript = {
+        successHandlers: [],
+        failureHandlers: [],
+        userObject: {},
+        withSuccessHandler: function(func) {
+            this.successHandlers.push(func);
+            return this;
+        },
+        withFailureHandler: function(func) {
+            this.failureHandlers.push(func);
+            return this;
+        },
+        withUserObject: function(obj) {
+            this.userObject = obj;
+            return this;
+        },
+    };
+
+    var getter = {
+
+        // store mocked functions that interface with app scripts
+
+        clientSideMocks: {
+            saveButton: function () {
+                var title = $('#buttonName').val(),
+                    link = $('#buttonLink').val();
+
+                $('#result').text(title + '/' + link);
+            },
+        },
+
+        /*
+            When getter is resolved and there are no corresponding properties
+            this get function is used.
+        */
+        get: function(target, name) {
+            // If already defined, i.e. with.. method, use that...
+            if (name in target) {
+                return target[name];
+
+            // otherwise this is something that needs to be emulated...
+            } else {
+                // Return a promise so we can emulate success and failure handlers
+                var promise = new Promise(
+                    function (resolve, reject) {
+                        if (!this.clientSideMocks[name]) {
+                            reject(Error(':' + name + '" is not a defined function for the client side.'));
+                        } else {
+                            try {
+                                var result = this.clientSideMocks[name](/* the arg would go here */);
+                                resolve(result);
+                            } catch(err) {
+                                reject(err)
+                            }
+                        }
+                    }.bind(this)
+                );
+                promise.then(
+                    function (args) {
+                        target.successHandlers.forEach(function (func) {
+                            // call the success handlers
+                            func(args, target.userObject);
+                        });
+                    }
+                ).catch(
+                    function (args) {
+                        target.failureHandlers.forEach(function (func) {
+                            func(args, target.userObject);
+                        });
+                    }
+                );
+
+                // Need to wrap return in a function in order for it to be called
+                // This means we can NOT use argument to call anything...
+                return function () { 
+                    return promise; 
+                };
+            }
+        }
+    };
+
+    // augment window to give us google object
+    // such as google.script.run
+    window.google = {
+        script: {
+            run: new Proxy(googleRunScript, getter),
+            host: {
+                close: function() { window.close(); },
+                origin: 'example.com',
+                editor: {
+                    focus: function () { /* TBI */; },
+                },
+                setHeight: function (height) { /* TBI */; },
+                setWidth: function (width) { /* TBI */; },
+            }
+        },
+    };
+
+})(window);
+
+</script>
